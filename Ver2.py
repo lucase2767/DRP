@@ -153,7 +153,10 @@ class AlunoDB:
                 print("\nID | Name | Matricula | AV1 | AV2 | Media")
                 print("-" * 50)
                 for row in results:
-                    print(f"{row[0]} | {row[1]} | {row[2]} | {row[3]:.1f} | {row[4]:.1f} | {row[5]:.1f}")
+                    #exeção
+                    media = row[5] if row[5] is not None else 0.0
+                    #---
+                    print(f"{row[0]} | {row[1]} | {row[2]} | {row[3]:.1f} | {row[4]:.1f} | {media:.1f}")
                     
         except Error as e:
             print(f"Erro: {e}")
