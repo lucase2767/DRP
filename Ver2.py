@@ -59,7 +59,26 @@ class AlunoDB:
             """
             self.cursor.execute(create_table_query)
             
-            #Calculo de media*
+            create_trigger_function = """
+            CREATE OR REPLACE FUNCTION calculate_media()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                NEW.media := (NEW.nota_av1 + NEW.nota_av2) / 2;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+            """
+            self.cursor.execute(create_trigger_function)
+            
+            create_trigger = """
+            DROP TRIGGER IF EXISTS update_media ON students;
+            CREATE TRIGGER update_media
+                BEFORE INSERT OR UPDATE ON students
+                FOR EACH ROW
+                EXECUTE FUNCTION calculate_media();
+            """
+            self.cursor.execute(create_trigger)
+
             
             # Dados para teste de funcionamento do postgree
             self.cursor.execute("SELECT COUNT(*) FROM students")
@@ -95,7 +114,11 @@ class AlunoDB:
                 try:
                     av1 = float(input("Nota Av1: "))
                     av2 = float(input("Nota Av2: "))
-                    break
+                    #erro de nota
+                    if 0 <= av1 <= 10 and 0 <= av2 <= 10:
+                        break
+                    else:
+                        print("Grades must be between 0 and 10.")
                 except ValueError:
                     print("Nota invalida, tente novamente")
 
